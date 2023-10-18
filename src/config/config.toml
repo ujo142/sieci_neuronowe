@@ -1,0 +1,14 @@
+[architecture]
+num_layers = 2
+num_neurons = [2, 3]
+learning_rate = 0.01
+num_class_heads = 1
+activation_fn = 'relu' # 'relu' or 'sigmoid'
+output_activation = 'softmax' # 'relu' or 'sigmoid'
+seed = 2137
+data_path = '/Users/ben/python_projects/mini_pw/sieci_neuronowe/src/data/classification/data.simple.train.10000.csv'
+batch_size = 100
+
+[training]
+num_epochs = 50
+
