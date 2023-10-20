@@ -1,3 +1,5 @@
+import numpy as np 
+
 class perceptron_net:
     def __init__(self):
         self.layers = []
@@ -9,7 +11,7 @@ class perceptron_net:
         self.layers.append(layer)
 
     # set loss to use
-    def use(self, loss, loss_prime):
+    def set_loss(self, loss, loss_prime):
         self.loss = loss
         self.loss_prime = loss_prime
 
@@ -28,9 +30,23 @@ class perceptron_net:
             result.append(output)
 
         return result
-
+    
+    def test(self, x_test, y_test):
+        # sample dimension first
+        samples = len(x_test)
+        outputs = []
+        for j in range(samples):
+            # forward propagation
+            output = x_test[j]
+            for layer in self.layers:
+                output = layer.forward_propagation(output)
+            outputs.append(np.argmax(output))
+        self.num_correct = sum([1 if outputs[i] == y_test[i] else 0 for i in range(len(y_test))])
+        accuracy = self.num_correct / samples
+        return accuracy
+    
     # train the network
-    def fit(self, x_train, y_train, epochs, learning_rate):
+    def fit(self, x_train, y_train, x_test, y_test, epochs, learning_rate):
         # sample dimension first
         samples = len(x_train)
         
@@ -38,6 +54,7 @@ class perceptron_net:
         for i in range(epochs):
             err = 0
             outputs = []
+            
             for j in range(samples):
                 # forward propagation
                 output = x_train[j]
@@ -45,20 +62,18 @@ class perceptron_net:
                     output = layer.forward_propagation(output)
 
                 # compute loss (for display purpose only)
-                err += self.loss(y_train[j], output)
-                outputs.append(round(output[0][0]))
+                err += self.loss(y_train[j], np.argmax(output))
+                
+                # append index of max output to outputs
+                outputs.append(np.argmax(output))
                 # compute accuracy for training data
                 
-                
-                
                 # backward propagation
-                error = self.loss_prime(y_train[j], output)
+                error = self.loss_prime(y_train[j], np.argmax(outputs))
                 for layer in reversed(self.layers):
                     error = layer.backward_propagation(error, learning_rate)
 
             # calculate average error on all samples
-            
-            self.num_correct = sum([1 if outputs[i] == y_train[i] else 0 for i in range(len(y_train))])
-            accuracy = self.num_correct / samples
+            test_accuracy = self.test(x_test, y_test)
             err /= samples
-            print(f"Epoch {i+1}, Loss: {err}, Accuracy: {accuracy * 100:.2f}%")
+            print(f"Epoch {i+1}, Loss: {err}, Test accuracy: {test_accuracy * 100:.2f}%")

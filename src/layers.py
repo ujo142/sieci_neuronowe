@@ -1,8 +1,6 @@
 import numpy as np
 
 
-
-# inherit from base class Layer
 class dense_layer():
     # input_size = number of input neurons
     # output_size = number of output neurons

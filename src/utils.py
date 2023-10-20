@@ -13,6 +13,15 @@ def BinaryCrossEntropy_prime(y_true, y_pred):
     y_pred = np.clip(y_pred, 1e-7, 1 - 1e-7)
     return (y_pred - y_true) / (y_pred * (1.0 - y_pred))
 
+def CrossEntropy(y_true, y_pred):
+    epsilon = 1e-10
+    loss = -np.mean(np.sum(y_pred * np.log(y_true + epsilon), axis=1))
+    return loss
+
+def CrossEntropy_prime(y_true, y_pred):
+    epsilon = 1e-10
+    return -np.mean(y_true / (y_pred + epsilon), axis=0)
+    
 def tanh(x):
     return np.tanh(x)
 
@@ -24,8 +33,15 @@ def sigmoid(x):
 
 def sigmoid_prime(x):
     return sigmoid(x)*(1-sigmoid(x))
+
+def softmax(values):
+    exp_values = np.exp(values)
+    exp_values_sum = np.sum(exp_values)
+    return exp_values/exp_values_sum
+
+def softmax_prime(x):
+    return softmax(x)*(1-softmax(x))
     
-# loss function and its derivative
 def mse(y_true, y_pred):
     return np.mean(np.power(y_true-y_pred, 2))
 
@@ -40,18 +56,24 @@ def relu_prime(x):
     x[x>0] = 1
     return x
     
-def load_data(path):
+def load_data(train_data_path, test_data_path):
     # load csv data
+    # Zrobić to potem porządnie 
     try:
-        data = pd.read_csv(path)
+        train_data = pd.read_csv(train_data_path)
+        test_data = pd.read_csv(test_data_path)
     except:
         raise Exception("File not found")
     
-    X = data.iloc[:, :-1].values
-    y = data.iloc[:, -1].values
-    y = y - 1
+    X_tr = train_data.iloc[:, :-1].values
+    y_tr = train_data.iloc[:, -1].values
+    y_tr = y_tr - 1
     
-    # reshape data
-    X_reshaped = X.reshape(len(X), 1, 2)
-    y_reshaped = y.reshape(len(y), 1, 1)
-    return X_reshaped, y_reshaped
+    X_te = test_data.iloc[:, :-1].values
+    y_te = test_data.iloc[:, -1].values
+    y_te = y_te - 1
+    
+    # reshape data to match batch size
+    X_te_reshaped = X_te.reshape(len(X_te), 1, 2)
+    y_te_reshaped = y_te.reshape(len(y_te), 1, 1)
+    return X_te_reshaped, y_te_reshaped, X_te_reshaped, y_te_reshaped
