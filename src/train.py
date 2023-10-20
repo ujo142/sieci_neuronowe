@@ -7,7 +7,7 @@ from layers import dense_layer, activation_layer
 
 if __name__ == "__main__":
     
-    with open('config/config2.toml', 'r') as file:
+    with open('config/config.toml', 'r') as file:
         config = toml.load(file)
         
     # training data
