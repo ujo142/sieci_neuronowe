@@ -1,5 +1,9 @@
+import os
+
 import numpy as np
 import pandas as pd
+import networkx as nx
+import matplotlib.pyplot as plt
 
 
 
@@ -15,7 +19,7 @@ def BinaryCrossEntropy_prime(y_true, y_pred):
 
 def CrossEntropy(y_true, y_pred):
     epsilon = 1e-10
-    loss = -np.mean(np.sum(y_pred * np.log(y_true + epsilon), axis=1))
+    loss = -np.mean(np.sum(y_pred * np.log(y_true + epsilon), axis=0))
     return loss
 
 def CrossEntropy_prime(y_true, y_pred):
@@ -56,9 +60,11 @@ def relu_prime(x):
     x[x>0] = 1
     return x
     
-def load_data(train_data_path, test_data_path):
+def load_data(data_dir, objective, data_size, data_name):
     # load csv data
-    # Zrobić to potem porządnie 
+    # Zrobić to potem porządnie
+    train_data_path = os.path.join(data_dir, objective, f"data.{data_name}.train.{data_size}.csv")
+    test_data_path = os.path.join(data_dir, objective, f"data.{data_name}.test.{data_size}.csv")
     try:
         train_data = pd.read_csv(train_data_path)
         test_data = pd.read_csv(test_data_path)
@@ -74,6 +80,24 @@ def load_data(train_data_path, test_data_path):
     y_te = y_te - 1
     
     # reshape data to match batch size
-    X_te_reshaped = X_te.reshape(len(X_te), 1, 2)
-    y_te_reshaped = y_te.reshape(len(y_te), 1, 1)
-    return X_te_reshaped, y_te_reshaped, X_te_reshaped, y_te_reshaped
+    X_train_reshaped = np.expand_dims(X_tr, 1)
+    Y_train_reshaped = np.expand_dims(y_tr, 1)
+    X_te_reshaped = np.expand_dims(X_te, 1)
+    y_te_reshaped = np.expand_dims(y_te, 1)
+    return X_train_reshaped, Y_train_reshaped, X_te_reshaped, y_te_reshaped
+
+def plot_dataset_classification(ds_X, ds_Y):
+    X_squeezed = np.squeeze(ds_X)
+    Y_squeezed = np.squeeze(ds_Y)
+    x = X_squeezed[:, 0]
+    y = X_squeezed[:, 1]
+    colors = Y_squeezed
+    plt.scatter(x, y, s=50, c=colors, alpha=0.8, cmap='viridis')
+    plt.show()
+
+def plot_dataset_regression(ds_X, ds_Y):
+    x = np.squeeze(ds_X)
+    y = np.squeeze(ds_Y)
+    plt.scatter(x, y, s=2)
+    plt.show()
+
