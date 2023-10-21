@@ -12,7 +12,6 @@ if __name__ == "__main__":
         
     # training data
     X_train, y_train, X_test, y_test = utils.load_data(**config['data'])
-   
     # network
     net = perceptron_net()
     net.add(dense_layer(2, 3))
