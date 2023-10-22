@@ -6,34 +6,6 @@ from src.layers import dense_layer, activation_layer
 import matplotlib.pyplot as plt
 
 
-def draw_network(network: perceptron_net):
-    G = nx.Graph()
-    i = 0
-    for idx, layer in enumerate(network.layers):
-        if not isinstance(layer, dense_layer):
-            continue
-        first_layer, second_layer = layer.weights.shape
-        edges = []
-        for j in range(first_layer):
-            for k in range(second_layer):
-                edges.append((i + j, i + first_layer + k, layer.weights[j][k]))
-        i += first_layer
-        first_nodes = [edge[0] for edge in edges]
-        second_nodes = [edge[1] for edge in edges]
-        G.add_weighted_edges_from(edges)
-        for node in G.nodes:
-            if node in first_nodes:
-                G.nodes[node]["subset"] = idx
-            elif node in second_nodes:
-                G.nodes[node]["subset"] = idx+1
-    pos = nx.multipartite_layout(G)
-    edges, weights = zip(*nx.get_edge_attributes(G, 'weight').items())
-    nx.draw(G, pos=pos,edgelist = edges, edge_color=weights, edge_cmap=plt.cm.Reds, with_labels=True)
-    labels = {e: f"{G.edges[e]['weight']:.2f}" for e in G.edges}
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
-    plt.show()
-
-
 if __name__ == "__main__":
     with open('config/config.toml', 'r') as file:
         config = toml.load(file)
@@ -53,4 +25,5 @@ if __name__ == "__main__":
     net.add(activation_layer(utils.relu, utils.relu_prime))
     net.add(dense_layer(10, 1))
     net.add(activation_layer(utils.softmax, utils.softmax_prime))
-    draw_network(net)
+    draw_network_weights(net)
+    draw_network_loss(net)
