@@ -1,4 +1,9 @@
-import numpy as np 
+import networkx as nx
+import numpy as np
+from matplotlib import pyplot as plt
+
+from layers import dense_layer
+
 
 class perceptron_net:
     def __init__(self):
@@ -72,8 +77,63 @@ class perceptron_net:
                 error = self.loss_prime(y_train[j], np.argmax(outputs))
                 for layer in reversed(self.layers):
                     error = layer.backward_propagation(error, learning_rate)
+                # self.draw_losses()
 
             # calculate average error on all samples
             test_accuracy = self.test(x_test, y_test)
             err /= samples
             print(f"Epoch {i+1}, Loss: {err}, Test accuracy: {test_accuracy * 100:.2f}%")
+
+    def draw_losses(self):
+        G = nx.Graph()
+        i = 0
+        for idx, layer in enumerate(self.layers):
+            if not isinstance(layer, dense_layer):
+                continue
+            first_layer, second_layer = layer.weights.shape
+            edges = []
+            for j in range(first_layer):
+                for k in range(second_layer):
+                    edges.append((i + j, i + first_layer + k, layer.weights_errors[j][k]))
+            i += first_layer
+            first_nodes = [edge[0] for edge in edges]
+            second_nodes = [edge[1] for edge in edges]
+            G.add_weighted_edges_from(edges)
+            for node in G.nodes:
+                if node in first_nodes:
+                    G.nodes[node]["subset"] = idx
+                elif node in second_nodes:
+                    G.nodes[node]["subset"] = idx + 1
+        pos = nx.multipartite_layout(G)
+        edges, weights = zip(*nx.get_edge_attributes(G, 'weight').items())
+        nx.draw(G, pos=pos, edgelist=edges, edge_color=weights, edge_cmap=plt.cm.Reds, with_labels=True)
+        labels = {e: f"{G.edges[e]['weight']:.2f}" for e in G.edges}
+        nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
+        plt.show()
+
+    def draw_network_weights(self):
+        G = nx.Graph()
+        i = 0
+        for idx, layer in enumerate(self.layers):
+            if not isinstance(layer, dense_layer):
+                continue
+            first_layer, second_layer = layer.weights.shape
+            edges = []
+            for j in range(first_layer):
+                for k in range(second_layer):
+                    edges.append((i + j, i + first_layer + k, layer.weights[j][k]))
+            i += first_layer
+            first_nodes = [edge[0] for edge in edges]
+            second_nodes = [edge[1] for edge in edges]
+            G.add_weighted_edges_from(edges)
+            for node in G.nodes:
+                if node in first_nodes:
+                    G.nodes[node]["subset"] = idx
+                elif node in second_nodes:
+                    G.nodes[node]["subset"] = idx + 1
+        pos = nx.multipartite_layout(G)
+        edges, weights = zip(*nx.get_edge_attributes(G, 'weight').items())
+        nx.draw(G, pos=pos, edgelist=edges, edge_color=weights, edge_cmap=plt.cm.Reds, with_labels=True)
+        labels = {e: f"{G.edges[e]['weight']:.2f}" for e in G.edges}
+        nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
+        plt.show()
