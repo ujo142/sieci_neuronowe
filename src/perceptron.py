@@ -40,7 +40,7 @@ class perceptron_net:
             output = x_test[j]
             for layer in self.layers:
                 output = layer.forward_propagation(output)
-            outputs.append(np.argmax(output))
+            outputs.append(np.round(output[0]))
         self.num_correct = sum([1 if outputs[i] == y_test[i] else 0 for i in range(len(y_test))])
         accuracy = self.num_correct / samples
         return accuracy
@@ -62,17 +62,16 @@ class perceptron_net:
                     output = layer.forward_propagation(output)
 
                 # compute loss (for display purpose only)
-                err += self.loss(y_train[j], np.argmax(output))
+                err += self.loss(y_train[j], output[0])
                 
                 # append index of max output to outputs
                 outputs.append(np.argmax(output))
-                # compute accuracy for training data
                 
                 # backward propagation
-                error = self.loss_prime(y_train[j], np.argmax(outputs))
-                for layer in reversed(self.layers):
+                error = self.loss_prime(y_train[j], output)
+                for layer in reversed(self.layers): 
                     error = layer.backward_propagation(error, learning_rate)
-
+                
             # calculate average error on all samples
             test_accuracy = self.test(x_test, y_test)
             err /= samples

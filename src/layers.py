@@ -5,8 +5,8 @@ class dense_layer():
     # input_size = number of input neurons
     # output_size = number of output neurons
     def __init__(self, input_size, output_size):
-        self.weights = np.random.rand(input_size, output_size) - 0.5
-        self.bias = np.random.rand(1, output_size) - 0.5
+        self.weights = 2*np.random.rand(input_size, output_size) - 1
+        self.bias = 2*np.random.rand(1, output_size) - 1
 
     # returns output for a given input
     def forward_propagation(self, input_data):
@@ -16,7 +16,7 @@ class dense_layer():
 
     # computes dE/dW, dE/dB for a given output_error=dE/dY. Returns input_error=dE/dX.
     def backward_propagation(self, output_error, learning_rate):
-        input_error = np.dot(output_error, self.weights.T)
+        input_error = np.dot(output_error, self.weights.T) # [0] !!
         weights_error = np.dot(self.input.T, output_error)
         # dBias = output_error
 
