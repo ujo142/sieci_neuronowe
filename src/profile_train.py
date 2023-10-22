@@ -12,7 +12,6 @@ if __name__ == "__main__":
         
     # training data
     X_train, y_train, X_test, y_test = utils.load_data(**config['data'])
-    
     # network
     net = perceptron_net()
     net.add(dense_layer(2, 3))
@@ -22,4 +21,5 @@ if __name__ == "__main__":
 
     # train
     net.set_loss(utils.CrossEntropy, utils.CrossEntropy_prime)
-    net.fit(X_train, y_train, X_test, y_test, epochs=5, learning_rate=0.001)
+    cProfile.run('net.fit(X_train, y_train, X_test, y_test, epochs=2, learning_rate=0.001)')
+   
