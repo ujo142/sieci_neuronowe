@@ -19,16 +19,16 @@ def BinaryCrossEntropy_prime(y_true, y_pred):
     return (y_pred - y_true) / (y_pred * (1.0 - y_pred))
 
 def CrossEntropy(y_true, y_pred):
-    epsilon = 1e-10
-    loss = -np.sum(y_true * np.log(y_pred + epsilon), axis=1)
+    epsilon = 1e-6
+    loss = -np.sum(y_true * np.log(y_pred + epsilon))
     return loss
 
 def CrossEntropy_prime(y_true, y_pred):
-    epsilon = 1e-10
-    return y_true / (y_pred + epsilon*np.ones_like(y_pred))
+    return y_pred - y_true
+
     
 def tanh(x):
-    return np.tanh(x)
+    return np.tanh(x+epsilon)
 
 def leaky_relu(x):
     return np.where(x > 0, x, x * 0.01)
@@ -38,7 +38,7 @@ def leaky_relu_prime(x):
     
     
 def tanh_prime(x):
-    return 1-np.tanh(x)**2
+    return 1-np.tanh(x+epsilon)**2
 
 def sigmoid(x):
     return 1/(1+np.exp(-x + epsilon))
@@ -108,4 +108,5 @@ def plot_dataset_regression(ds_X, ds_Y):
     y = np.squeeze(ds_Y)
     plt.scatter(x, y, s=2)
     plt.show()
+
 
