@@ -5,10 +5,11 @@ from layers import dense_layer, activation_layer
 import cProfile
 from sklearn.preprocessing import OneHotEncoder
 import numpy as np
+import gui
 
 if __name__ == "__main__":
     
-    with open('src/config/config.toml', 'r') as file:
+    with open('config/config.toml', 'r') as file:
         config = toml.load(file)
         
     # training data
@@ -27,6 +28,6 @@ if __name__ == "__main__":
 
     # train
     net.set_loss(utils.CrossEntropy, utils.CrossEntropy_prime)
-    net.fit(X_train, y_train_enc, X_test, y_test_enc, epochs=5, learning_rate=0.001)
-    net.draw_network_weights()
-    net.draw_losses()
+    epochs = 10
+    figs = net.fit(X_train, y_train_enc, X_test, y_test_enc, epochs=epochs, learning_rate=0.01)
+    gui.run_gui(epochs, figs)
