@@ -1,5 +1,5 @@
 neurons_per_layer = [1,6,6,1]
-seed = 2137
+seed = 2023
 activation_fn = "tanh" # relu, leaky_relu
 last_activation_fn = "linear" # sigmoid, softmax
 loss_function = "mse" # mse, binary_crossentropy, categorical_crossentropy
@@ -9,4 +9,4 @@ objective = "regression" # multi_classification, binary_classification, regressi
 data_dir = "src/data/regression"
 data_size = 10000
 data_name = "activation"
-data_seed = 2137
+data_seed = 2023
