@@ -58,12 +58,13 @@ if __name__ == "__main__":
         loss = utils.mse
         loss_prime = utils.mse_prime
     
-     # network
-    net = perceptron_net(config['objective'])
+    # network
+    net = perceptron_net(config['objective'], config['seed'])
+    np.random.seed(config['seed'])
     
     # set layers
     for i in range(len(config['neurons_per_layer']) - 1):
-        net.add(dense_layer(config['neurons_per_layer'][i], config['neurons_per_layer'][i + 1]))
+        net.add(dense_layer(config['neurons_per_layer'][i], config['neurons_per_layer'][i + 1], config['seed']))
         if i < len(config['neurons_per_layer']) - 2:
             net.add(activation_layer(activation_fn, activation_fn_prime))
         else:
@@ -73,7 +74,4 @@ if __name__ == "__main__":
     # set loss
     net.set_loss(loss, loss_prime)
     net.fit(X_train, y_train, X_test, y_test, epochs=config['epochs'], learning_rate=config['learning_rate'])
-    #cProfile.run('net.fit(X_train, y_train, X_test, y_test, epochs=6, learning_rate=0.001)')
-   
-    
-    # Epoch 127, Loss: 0.032956917601535934, Test accuracy: 99.70%
+  

@@ -1,10 +1,9 @@
 import numpy as np
 
 
-class dense_layer:
-    # input_size = number of input neurons
-    # output_size = number of output neurons
-    def __init__(self, input_size, output_size):
+class dense_layer():
+    def __init__(self, input_size, output_size, seed):
+        np.random.seed(seed)
         self.weights = 2*np.random.rand(input_size, output_size) - 1
         self.bias = 2*np.random.rand(1, output_size) - 1
 
@@ -18,7 +17,6 @@ class dense_layer:
     def backward_propagation(self, output_error, learning_rate):
         input_error = np.dot(output_error, self.weights.T) # [0] !!
         weights_error = np.dot(self.input.T, output_error)
-        # dBias = output_error
 
         # update parameters
         self.weights -= learning_rate * weights_error
@@ -26,17 +24,10 @@ class dense_layer:
         return input_error
     
 
-    # returns the activated input
-    def forward_propagation(self, input_data):
-        return input_data
-
-    # Returns input_error=dE/dX for a given output_error=dE/dY.
-    # learning_rate is not used because there is no "learnable" parameters.
-    def backward_propagation(self, output_error, learning_rate):
-        return output_error
+  
     
 # inherit from base class Layer
-class activation_layer:
+class activation_layer():
     def __init__(self, activation, activation_prime):
         self.activation = activation
         self.activation_prime = activation_prime

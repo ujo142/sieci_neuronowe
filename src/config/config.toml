@@ -1,12 +1,12 @@
-neurons_per_layer = [1,2,1]
+neurons_per_layer = [1,6,6,1]
 seed = 2137
-activation_fn = "linear" # relu, leaky_relu
+activation_fn = "tanh" # relu, leaky_relu
 last_activation_fn = "linear" # sigmoid, softmax
 loss_function = "mse" # mse, binary_crossentropy, categorical_crossentropy
-epochs = 30
-learning_rate = 0.0001
+epochs = 150
+learning_rate = 0.00001
 objective = "regression" # multi_classification, binary_classification, regression
 data_dir = "src/data/regression"
-data_size = 1000
+data_size = 10000
 data_name = "activation"
 data_seed = 2137

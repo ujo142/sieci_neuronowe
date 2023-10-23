@@ -6,12 +6,12 @@ from layers import dense_layer
 
 
 class perceptron_net:
-    def __init__(self, objective, **kwargs):
+    def __init__(self, objective, seed, **kwargs):
         self.layers = []
         self.loss = None
         self.loss_prime = None
         self.objective = objective
-
+        self.seed = seed
     # add layer to network
     def add(self, layer):
         self.layers.append(layer)
@@ -78,6 +78,11 @@ class perceptron_net:
         for i in range(epochs):
             err = 0
             outputs = []
+            # shuffle samples in each epoch with certain seed
+            np.random.seed(self.seed)
+            perm = np.random.permutation(len(x_train))
+            x_train = x_train[perm]
+            y_train = y_train[perm]
             
             for j in range(samples):
                 # forward propagation
@@ -91,8 +96,11 @@ class perceptron_net:
                 err += self.loss(y_train[j], output[0])
                 
                 # append index of max output to outputs
-                outputs.append(np.argmax(output))  #0, 1, 2 moga byc
-                
+                if self.objective == 'binary_classification' or self.objective == 'multi_classification':
+                    outputs.append(np.argmax(output))  #0, 1, 2 moga byc
+                else:
+                    outputs.append(output[0])
+                    
                 # backward propagation
                 error = self.loss_prime(y_train[j], output[0])     # err - int, error - 1,3. Czy to na pewno dobrze?
                 for layer in reversed(self.layers): 

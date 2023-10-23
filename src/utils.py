@@ -41,7 +41,7 @@ def linear(x):
     return x
 
 def linear_prime(x):
-    return 1
+    return np.ones_like(x)
 
 def softmax(values):
     exp_values = np.exp(values)
