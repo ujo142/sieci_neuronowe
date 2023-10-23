@@ -91,18 +91,16 @@ def load_data(data_dir, objective, data_size, data_name):
     y_te_reshaped = np.expand_dims(y_te, 1)
     return X_train_reshaped, Y_train_reshaped, X_te_reshaped, y_te_reshaped
 
-def plot_dataset_classification(ds_X, ds_Y):
+def plot_dataset_classification(ds_X, ds_Y, ax):
     X_squeezed = np.squeeze(ds_X)
     Y_squeezed = np.squeeze(ds_Y)
     x = X_squeezed[:, 0]
     y = X_squeezed[:, 1]
     colors = Y_squeezed
-    plt.scatter(x, y, s=50, c=colors, alpha=0.8, cmap='viridis')
-    plt.show()
+    ax.scatter(x, y, s=50, c=colors, alpha=0.8)
 
-def plot_dataset_regression(ds_X, ds_Y):
+def plot_dataset_regression(ds_X, ds_Y, ax):
     x = np.squeeze(ds_X)
     y = np.squeeze(ds_Y)
-    plt.scatter(x, y, s=2)
-    plt.show()
+    ax.scatter(x, y, s=2)
 

@@ -2,7 +2,7 @@ import networkx as nx
 import toml
 import utils
 from perceptron import perceptron_net
-from src.layers import dense_layer, activation_layer
+from layers import dense_layer, activation_layer
 import matplotlib.pyplot as plt
 
 
@@ -21,9 +21,13 @@ if __name__ == "__main__":
     net = perceptron_net()
     net.add(dense_layer(2, 3))
     net.add(activation_layer(utils.relu, utils.relu_prime))
-    net.add(dense_layer(3, 10))
+    net.add(dense_layer(3, 3))
     net.add(activation_layer(utils.relu, utils.relu_prime))
-    net.add(dense_layer(10, 1))
-    net.add(activation_layer(utils.softmax, utils.softmax_prime))
-    draw_network_weights(net)
-    draw_network_loss(net)
+    net.add(dense_layer(3, 1))
+    net.add(activation_layer(utils.relu, utils.relu_prime))
+    # net.add(dense_layer(10, 1))
+    # net.add(activation_layer(utils.softmax, utils.softmax_prime))
+    fig, axs = plt.subplots(1, 2, figsize=(15, 10))
+    net.draw_network_weights(axs[0])
+    net.draw_losses(axs[1])
+    fig.show()

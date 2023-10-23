@@ -3,6 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from layers import dense_layer
+from src import utils
 
 
 class perceptron_net:
@@ -49,13 +50,13 @@ class perceptron_net:
         self.num_correct = sum([1 if np.argmax(outputs[i]) == np.argmax(y_test[i]) else 0 for i in range(len(y_test))])
         # calculcate number of correct
         accuracy = self.num_correct / samples
-        return accuracy
+        return accuracy, outputs
     
     # train the network
     def fit(self, x_train, y_train, x_test, y_test, epochs, learning_rate):
         # sample dimension first
         samples = len(x_train)
-        
+        figs = []
         # training loop
         for i in range(epochs):
             err = 0
@@ -79,13 +80,24 @@ class perceptron_net:
                 error = self.loss_prime(y_train[j], output[0])     # err - int, error - 1,3. Czy to na pewno dobrze?
                 for layer in reversed(self.layers): 
                     error = layer.backward_propagation(error, learning_rate)
-                
+
+            test_accuracy, outputs = self.test(x_test, y_test)
+            fig, axs = plt.subplots(2, 2, figsize=(15, 10))
+            self.draw_losses(axs[0][0])
+            self.draw_network_weights(axs[0][1])
             # calculate average error on all samples
-            test_accuracy = self.test(x_test, y_test)
+            figs.append(fig)
+            plot_fnc = utils.plot_dataset_classification if self.layers[0].weights.shape[0] > 1 else utils.plot_dataset_regression
+            plot_fnc(x_test, y_test, axs[1][0])
+            axs[1][0].set_title("Goal")
+            plot_fnc(x_test, outputs, axs[1][1])
+            axs[1][1].set_title("Actual output")
+
             err /= samples
             print(f"Epoch {i+1}, Loss: {err}, Test accuracy: {test_accuracy * 100:.2f}%")
+        return figs
 
-    def draw_losses(self):
+    def draw_losses(self, ax):
         G = nx.Graph()
         i = 0
         for idx, layer in enumerate(self.layers):
@@ -107,12 +119,12 @@ class perceptron_net:
                     G.nodes[node]["subset"] = idx + 1
         pos = nx.multipartite_layout(G)
         edges, weights = zip(*nx.get_edge_attributes(G, 'weight').items())
-        nx.draw(G, pos=pos, edgelist=edges, edge_color=weights, edge_cmap=plt.cm.Reds, with_labels=True)
+        nx.draw(G, pos=pos, edgelist=edges, edge_color=weights, edge_cmap=plt.cm.Reds, with_labels=True, ax=ax)
         labels = {e: f"{G.edges[e]['weight']:.2f}" for e in G.edges}
-        nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
-        plt.show()
+        nx.draw_networkx_edge_labels(G, pos, edge_labels=labels, ax=ax, label_pos=0.75)
+        ax.set_title("Propagated_losses")
 
-    def draw_network_weights(self):
+    def draw_network_weights(self, ax):
         G = nx.Graph()
         i = 0
         for idx, layer in enumerate(self.layers):
@@ -120,12 +132,14 @@ class perceptron_net:
                 continue
             first_layer, second_layer = layer.weights.shape
             edges = []
+
             for j in range(first_layer):
                 for k in range(second_layer):
-                    edges.append((i + j, i + first_layer + k, layer.weights[j][k]))
+                    edges.append([i + j, i + first_layer + k, layer.weights[j][k]])
             i += first_layer
             first_nodes = [edge[0] for edge in edges]
             second_nodes = [edge[1] for edge in edges]
+
             G.add_weighted_edges_from(edges)
             for node in G.nodes:
                 if node in first_nodes:
@@ -134,7 +148,7 @@ class perceptron_net:
                     G.nodes[node]["subset"] = idx + 1
         pos = nx.multipartite_layout(G)
         edges, weights = zip(*nx.get_edge_attributes(G, 'weight').items())
-        nx.draw(G, pos=pos, edgelist=edges, edge_color=weights, edge_cmap=plt.cm.Reds, with_labels=True)
+        nx.draw(G,pos=pos, edgelist=edges, edge_color=weights, edge_cmap=plt.cm.Reds, with_labels=True, ax=ax)
         labels = {e: f"{G.edges[e]['weight']:.2f}" for e in G.edges}
-        nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
-        plt.show()
+        nx.draw_networkx_edge_labels(G, pos, edge_labels=labels, ax=ax, label_pos=0.75)
+        ax.set_title("Network weights")
