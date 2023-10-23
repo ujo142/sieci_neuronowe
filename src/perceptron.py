@@ -3,6 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from layers import dense_layer
+import utils
 
 
 
