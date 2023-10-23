@@ -8,23 +8,22 @@ import matplotlib.pyplot as plt
 
 
 def BinaryCrossEntropy(y_true, y_pred):
-    y_pred = np.clip(y_pred, 1e-7, 1 - 1e-7)
-    term_0 = (1-y_true) * np.log(1-y_pred + 1e-7)
-    term_1 = y_true * np.log(y_pred + 1e-7)
+    y_pred = np.clip(y_pred, 1e-4, 1 - 1e-4)
+    term_0 = (1-y_true) * np.log(1-y_pred + 1e-4)
+    term_1 = y_true * np.log(y_pred + 1e-4)
     return -np.mean(term_0+term_1, axis=0)
 
 def BinaryCrossEntropy_prime(y_true, y_pred):
-    y_pred = np.clip(y_pred, 1e-7, 1 - 1e-7)
+    y_pred = np.clip(y_pred, 1e-4, 1 - 1e-4)
     return (y_pred - y_true) / (y_pred * (1.0 - y_pred))
 
 def CrossEntropy(y_true, y_pred):
-    epsilon = 1e-10
+    epsilon = 1e-6
     loss = -np.mean(np.sum(y_pred * np.log(y_true + epsilon), axis=0))
     return loss
 
 def CrossEntropy_prime(y_true, y_pred):
-    epsilon = 1e-10
-    return -np.mean(y_true / (y_pred + epsilon), axis=0)
+    return y_pred - y_true
     
 def tanh(x):
     return np.tanh(x)
@@ -59,6 +58,12 @@ def relu_prime(x):
     x[x<=0] = 0
     x[x>0] = 1
     return x
+
+def leaky_relu(x):
+    return np.where(x > 0, x, x * 0.01)
+
+def leaky_relu_prime(x):
+    return np.where(x > 0, 1, 0.01)
     
 def load_data(data_dir, objective, data_size, data_name):
     # load csv data

@@ -45,8 +45,9 @@ class perceptron_net:
             output = x_test[j]
             for layer in self.layers:
                 output = layer.forward_propagation(output)
-            outputs.append(np.argmax(output))
-        self.num_correct = sum([1 if outputs[i] == y_test[i] else 0 for i in range(len(y_test))])
+            outputs.append(np.round(output[0]))
+        self.num_correct = sum([1 if np.argmax(outputs[i]) == np.argmax(y_test[i]) else 0 for i in range(len(y_test))])
+        # calculcate number of correct
         accuracy = self.num_correct / samples
         return accuracy
     
@@ -67,18 +68,18 @@ class perceptron_net:
                     output = layer.forward_propagation(output)
 
                 # compute loss (for display purpose only)
-                err += self.loss(y_train[j], np.argmax(output))
+                a = y_train[j]
+                b = output[0]
+                err += self.loss(y_train[j], output[0])
                 
                 # append index of max output to outputs
-                outputs.append(np.argmax(output))
-                # compute accuracy for training data
+                outputs.append(np.argmax(output))  #0, 1, 2 moga byc
                 
                 # backward propagation
-                error = self.loss_prime(y_train[j], np.argmax(outputs))
-                for layer in reversed(self.layers):
+                error = self.loss_prime(y_train[j], output[0])     # err - int, error - 1,3. Czy to na pewno dobrze?
+                for layer in reversed(self.layers): 
                     error = layer.backward_propagation(error, learning_rate)
-                # self.draw_losses()
-
+                
             # calculate average error on all samples
             test_accuracy = self.test(x_test, y_test)
             err /= samples
