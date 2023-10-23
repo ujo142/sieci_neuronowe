@@ -3,15 +3,17 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from layers import dense_layer
-from src import utils
+
 
 
 class perceptron_net:
-    def __init__(self):
+    def __init__(self, objective, seed, **kwargs):
         self.layers = []
         self.loss = None
         self.loss_prime = None
-
+        self.objective = objective
+        self.seed = seed
+        
     # add layer to network
     def add(self, layer):
         self.layers.append(layer)
@@ -47,20 +49,42 @@ class perceptron_net:
             for layer in self.layers:
                 output = layer.forward_propagation(output)
             outputs.append(np.round(output[0]))
-        self.num_correct = sum([1 if np.argmax(outputs[i]) == np.argmax(y_test[i]) else 0 for i in range(len(y_test))])
-        # calculcate number of correct
+        if self.objective == 'binary_classification':
+            self.num_correct = sum([1 if outputs[i] == y_test[i] else 0 for i in range(len(y_test))])
+        elif self.objective == 'multi_classification':
+            self.num_correct = sum([1 if np.argmax(outputs[i]) == np.argmax(y_test[i]) else 0 for i in range(len(y_test))])
         accuracy = self.num_correct / samples
         return accuracy, outputs
+    
+    def test_mse(self, x_test, y_test):
+        # sample dimension first
+        samples = len(x_test)
+        outputs = []
+        for j in range(samples):
+            # forward propagation
+            output = x_test[j]
+            for layer in self.layers:
+                output = layer.forward_propagation(output)
+            outputs.append(output[0])
+        mse = self.loss(y_test, outputs)
+        return mse, outputs
     
     # train the network
     def fit(self, x_train, y_train, x_test, y_test, epochs, learning_rate):
         # sample dimension first
         samples = len(x_train)
         figs = []
+        
         # training loop
         for i in range(epochs):
             err = 0
             outputs = []
+            
+            # shuffle samples in each epoch with certain seed
+            np.random.seed(self.seed)
+            perm = np.random.permutation(len(x_train))
+            x_train = x_train[perm]
+            y_train = y_train[perm]
             
             for j in range(samples):
                 # forward propagation
@@ -69,19 +93,28 @@ class perceptron_net:
                     output = layer.forward_propagation(output)
 
                 # compute loss (for display purpose only)
-                a = y_train[j]
-                b = output[0]
                 err += self.loss(y_train[j], output[0])
                 
                 # append index of max output to outputs
-                outputs.append(np.argmax(output))  #0, 1, 2 moga byc
+                if self.objective == 'binary_classification' or self.objective == 'multi_classification':
+                    outputs.append(np.argmax(output))  #0, 1, 2 moga byc
+                else:
+                    outputs.append(output[0])
                 
                 # backward propagation
                 error = self.loss_prime(y_train[j], output[0])     # err - int, error - 1,3. Czy to na pewno dobrze?
                 for layer in reversed(self.layers): 
                     error = layer.backward_propagation(error, learning_rate)
+                    
+            err /= samples
+             # calculate average error on all samples
+            if self.objective == 'binary_classification' or self.objective == 'multi_classification':
+                metric, outputs = self.test(x_test, y_test)
+                print(f"Epoch {i+1}, Loss: {err}, Test accuracy: {metric * 100:.2f}%")
+            else: 
+                metric, outputs = self.test_mse(x_test, y_test)
+                print(f"Epoch {i+1}, train_mse: {err}, train_rmse: {np.sqrt(err)}, test_mse: {metric}, test_rmse {np.sqrt(metric)}")
 
-            test_accuracy, outputs = self.test(x_test, y_test)
             fig, axs = plt.subplots(2, 2, figsize=(15, 10))
             self.draw_losses(axs[0][0])
             self.draw_network_weights(axs[0][1])
@@ -93,8 +126,7 @@ class perceptron_net:
             plot_fnc(x_test, outputs, axs[1][1])
             axs[1][1].set_title("Actual output")
 
-            err /= samples
-            print(f"Epoch {i+1}, Loss: {err}, Test accuracy: {test_accuracy * 100:.2f}%")
+            
         return figs
 
     def draw_losses(self, ax):

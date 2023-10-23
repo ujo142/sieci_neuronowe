@@ -18,7 +18,7 @@ def BinaryCrossEntropy_prime(y_true, y_pred):
     return (y_pred - y_true) / (y_pred * (1.0 - y_pred))
 
 def CrossEntropy(y_true, y_pred):
-    epsilon = 1e-6
+    epsilon = 1e-4
     loss = -np.mean(np.sum(y_pred * np.log(y_true + epsilon), axis=0))
     return loss
 
@@ -32,10 +32,16 @@ def tanh_prime(x):
     return 1-np.tanh(x)**2
 
 def sigmoid(x):
-    return 1/(1+np.exp(-x))
+    return 1/(1+np.exp(-x + 1e-6))
 
 def sigmoid_prime(x):
-    return sigmoid(x)*(1-sigmoid(x))
+    return sigmoid(x + 1e-6)*(1-sigmoid(x + 1e-6))
+
+def linear(x):
+    return x
+
+def linear_prime(x):
+    return np.ones_like(x)
 
 def softmax(values):
     exp_values = np.exp(values)
@@ -49,7 +55,7 @@ def mse(y_true, y_pred):
     return np.mean(np.power(y_true-y_pred, 2))
 
 def mse_prime(y_true, y_pred):
-    return 2*(y_pred-y_true)/y_true.size
+    return 2*(y_pred-y_true)
 
 def relu(x):
     return np.maximum(x, 0)
@@ -65,11 +71,11 @@ def leaky_relu(x):
 def leaky_relu_prime(x):
     return np.where(x > 0, 1, 0.01)
     
-def load_data(data_dir, objective, data_size, data_name):
+def load_data(data_dir, objective, data_size, data_name, **kwargs):
     # load csv data
     # Zrobić to potem porządnie
-    train_data_path = os.path.join(data_dir, objective, f"data.{data_name}.train.{data_size}.csv")
-    test_data_path = os.path.join(data_dir, objective, f"data.{data_name}.test.{data_size}.csv")
+    train_data_path = os.path.join(data_dir, f"data.{data_name}.train.{data_size}.csv")
+    test_data_path = os.path.join(data_dir, f"data.{data_name}.test.{data_size}.csv")
     try:
         train_data = pd.read_csv(train_data_path)
         test_data = pd.read_csv(test_data_path)
@@ -91,16 +97,17 @@ def load_data(data_dir, objective, data_size, data_name):
     y_te_reshaped = np.expand_dims(y_te, 1)
     return X_train_reshaped, Y_train_reshaped, X_te_reshaped, y_te_reshaped
 
-def plot_dataset_classification(ds_X, ds_Y, ax):
+def plot_dataset_classification(ds_X, ds_Y):
     X_squeezed = np.squeeze(ds_X)
     Y_squeezed = np.squeeze(ds_Y)
     x = X_squeezed[:, 0]
     y = X_squeezed[:, 1]
     colors = Y_squeezed
-    ax.scatter(x, y, s=50, c=colors, alpha=0.8)
+    plt.scatter(x, y, s=50, c=colors, alpha=0.8, cmap='viridis')
+    plt.show()
 
-def plot_dataset_regression(ds_X, ds_Y, ax):
+def plot_dataset_regression(ds_X, ds_Y):
     x = np.squeeze(ds_X)
     y = np.squeeze(ds_Y)
-    ax.scatter(x, y, s=2)
-
+    plt.scatter(x, y, s=2)
+    plt.show()
