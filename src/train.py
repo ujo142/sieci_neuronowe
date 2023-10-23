@@ -3,26 +3,77 @@ from perceptron import perceptron_net
 import utils
 from layers import dense_layer, activation_layer
 import cProfile
-
+from sklearn.preprocessing import OneHotEncoder
+import numpy as np
 
 if __name__ == "__main__":
     
     with open('src/config/config.toml', 'r') as file:
         config = toml.load(file)
         
-    # training data
-    X_train, y_train, X_test, y_test = utils.load_data(**config['data'])
+    # Prepare data
+    X_train, y_train, X_test, y_test = utils.load_data(**config)
     
-    # network
-    net = perceptron_net()
-    net.add(dense_layer(2, 3)) 
-    net.add(activation_layer(utils.relu, utils.relu_prime))
-    net.add(dense_layer(3, 1))
-    net.add(activation_layer(utils.sigmoid, utils.sigmoid))
-
-    # train
-    net.set_loss(utils.BinaryCrossEntropy, utils.BinaryCrossEntropy_prime)
-    net.fit(X_train, y_train, X_test, y_test, epochs=500, learning_rate=0.0001)
+    if config['objective'] == 'multi_classification':
+        encoder = OneHotEncoder(sparse_output=False)
+        y_train = encoder.fit_transform(np.array(y_train).reshape(-1, 1))
+        y_test = encoder.fit_transform(np.array(y_test).reshape(-1, 1))
     
+    if config['activation_fn'] == 'relu':
+        activation_fn = utils.relu
+        activation_fn_prime = utils.relu_prime
+    elif config['activation_fn'] == 'leaky_relu':
+        activation_fn = utils.leaky_relu
+        activation_fn_prime = utils.leaky_relu_prime
+    elif config['activation_fn'] == 'tanh':
+        activation_fn = utils.tanh
+        activation_fn_prime = utils.tanh_prime
+    elif config['activation_fn'] == 'linear':
+        activation_fn = utils.linear
+        activation_fn_prime = utils.linear_prime
+        
+    if config['last_activation_fn'] == 'sigmoid':
+        last_activation_fn = utils.sigmoid
+        last_activation_fn_prime = utils.sigmoid_prime
+    elif config['last_activation_fn'] == 'softmax':
+        last_activation_fn = utils.softmax
+        last_activation_fn_prime = utils.softmax_prime
+    elif config['last_activation_fn'] == 'tanh':
+        last_activation_fn = utils.tanh
+        last_activation_fn_prime = utils.tanh_prime
+    elif config['last_activation_fn'] == 'linear':
+        last_activation_fn = utils.linear
+        last_activation_fn_prime = utils.linear_prime
+        
+    if config['loss_function'] == 'categorical_crossentropy':
+        loss = utils.CrossEntropy
+        loss_prime = utils.CrossEntropy_prime
+    elif config['loss_function'] == 'binary_crossentropy':
+        loss = utils.BinaryCrossEntropy
+        loss_prime = utils.BinaryCrossEntropy_prime
+    elif config['loss_function'] == 'BinaryCrossEntropy':
+        loss = utils.BinaryCrossEntropy
+        loss_prime = utils.BinaryCrossEntropy_prime
+    elif config['loss_function'] == 'mse':
+        loss = utils.mse
+        loss_prime = utils.mse_prime
+    
+     # network
+    net = perceptron_net(config['objective'])
+    
+    # set layers
+    for i in range(len(config['neurons_per_layer']) - 1):
+        net.add(dense_layer(config['neurons_per_layer'][i], config['neurons_per_layer'][i + 1]))
+        if i < len(config['neurons_per_layer']) - 2:
+            net.add(activation_layer(activation_fn, activation_fn_prime))
+        else:
+            net.add(activation_layer(last_activation_fn, last_activation_fn_prime))
+    
+    
+    # set loss
+    net.set_loss(loss, loss_prime)
+    net.fit(X_train, y_train, X_test, y_test, epochs=config['epochs'], learning_rate=config['learning_rate'])
+    #cProfile.run('net.fit(X_train, y_train, X_test, y_test, epochs=6, learning_rate=0.001)')
+   
     
     # Epoch 127, Loss: 0.032956917601535934, Test accuracy: 99.70%

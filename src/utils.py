@@ -5,8 +5,7 @@ import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
 
-global epsilon
-epsilon = 1e-4
+
 
 def BinaryCrossEntropy(y_true, y_pred):
     y_pred = np.clip(y_pred, 1e-4, 1 - 1e-4)
@@ -19,32 +18,30 @@ def BinaryCrossEntropy_prime(y_true, y_pred):
     return (y_pred - y_true) / (y_pred * (1.0 - y_pred))
 
 def CrossEntropy(y_true, y_pred):
-    epsilon = 1e-10
-    loss = -np.sum(y_true * np.log(y_pred + epsilon), axis=1)
+    epsilon = 1e-4
+    loss = -np.mean(np.sum(y_pred * np.log(y_true + epsilon), axis=0))
     return loss
 
 def CrossEntropy_prime(y_true, y_pred):
-    epsilon = 1e-10
-    return y_true / (y_pred + epsilon*np.ones_like(y_pred))
+    return y_pred - y_true
     
 def tanh(x):
     return np.tanh(x)
 
-def leaky_relu(x):
-    return np.where(x > 0, x, x * 0.01)
-
-def leaky_relu_prime(x):
-    return np.where(x > 0, 1, 0.01)
-    
-    
 def tanh_prime(x):
     return 1-np.tanh(x)**2
 
 def sigmoid(x):
-    return 1/(1+np.exp(-x + epsilon))
+    return 1/(1+np.exp(-x + 1e-6))
 
 def sigmoid_prime(x):
-    return sigmoid(x)*(1-sigmoid(x + epsilon))
+    return sigmoid(x + 1e-6)*(1-sigmoid(x + 1e-6))
+
+def linear(x):
+    return x
+
+def linear_prime(x):
+    return 1
 
 def softmax(values):
     exp_values = np.exp(values)
@@ -58,7 +55,7 @@ def mse(y_true, y_pred):
     return np.mean(np.power(y_true-y_pred, 2))
 
 def mse_prime(y_true, y_pred):
-    return 2*(y_pred-y_true)/y_true.size
+    return 2*(y_pred-y_true)
 
 def relu(x):
     return np.maximum(x, 0)
@@ -67,12 +64,18 @@ def relu_prime(x):
     x[x<=0] = 0
     x[x>0] = 1
     return x
+
+def leaky_relu(x):
+    return np.where(x > 0, x, x * 0.01)
+
+def leaky_relu_prime(x):
+    return np.where(x > 0, 1, 0.01)
     
-def load_data(data_dir, objective, data_size, data_name):
+def load_data(data_dir, objective, data_size, data_name, **kwargs):
     # load csv data
     # Zrobić to potem porządnie
-    train_data_path = os.path.join(data_dir, objective, f"data.{data_name}.train.{data_size}.csv")
-    test_data_path = os.path.join(data_dir, objective, f"data.{data_name}.test.{data_size}.csv")
+    train_data_path = os.path.join(data_dir, f"data.{data_name}.train.{data_size}.csv")
+    test_data_path = os.path.join(data_dir, f"data.{data_name}.test.{data_size}.csv")
     try:
         train_data = pd.read_csv(train_data_path)
         test_data = pd.read_csv(test_data_path)
@@ -108,4 +111,3 @@ def plot_dataset_regression(ds_X, ds_Y):
     y = np.squeeze(ds_Y)
     plt.scatter(x, y, s=2)
     plt.show()
-
