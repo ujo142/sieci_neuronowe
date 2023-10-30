@@ -1,3 +1,4 @@
+import pandas as pd
 import toml
 from perceptron import perceptron_net
 import utils
@@ -6,6 +7,7 @@ import cProfile
 from sklearn.preprocessing import OneHotEncoder
 import numpy as np
 import gui
+import pickle
 
 if __name__ == "__main__":
     
@@ -14,7 +16,7 @@ if __name__ == "__main__":
         
     # Prepare data
     X_train, y_train, X_test, y_test = utils.load_data(**config)
-    
+    #X_train = utils.load_mnist()
     if config['objective'] == 'multi_classification':
         encoder = OneHotEncoder(sparse_output=False)
         y_train = encoder.fit_transform(np.array(y_train).reshape(-1, 1))
@@ -32,6 +34,9 @@ if __name__ == "__main__":
     elif config['activation_fn'] == 'linear':
         activation_fn = utils.linear
         activation_fn_prime = utils.linear_prime
+    elif config['activation_fn'] == 'sigmoid':
+        activation_fn = utils.sigmoid
+        activation_fn_prime = utils.sigmoid_prime
         
     if config['last_activation_fn'] == 'sigmoid':
         last_activation_fn = utils.sigmoid
@@ -73,5 +78,9 @@ if __name__ == "__main__":
     
     # set loss
     net.set_loss(loss, loss_prime)
-    figs = net.fit(X_train, y_train, X_test, y_test, epochs=config['epochs'], learning_rate=config['learning_rate'])
-    gui.run_gui(config['epochs'], figs)
+
+    result = net.fit(X_train, y_train, X_test, y_test, epochs=config['epochs'], learning_rate=config['learning_rate'])
+    pd.DataFrame(result).to_csv(f"results/last.csv")
+    with open("test.pkl", 'wb') as f:
+        pickle.dump(net, f)
+    # gui.run_gui(config['epochs'], figs)

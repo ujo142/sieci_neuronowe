@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
+from keras.datasets import mnist
 
 
 
@@ -74,6 +75,8 @@ def leaky_relu_prime(x):
 def load_data(data_dir, objective, data_size, data_name, **kwargs):
     # load csv data
     # Zrobić to potem porządnie
+    if data_name == "mnist":
+        return load_mnist()
     train_data_path = os.path.join(data_dir, f"data.{data_name}.train.{data_size}.csv")
     test_data_path = os.path.join(data_dir, f"data.{data_name}.test.{data_size}.csv")
     try:
@@ -103,9 +106,14 @@ def plot_dataset_classification(ds_X, ds_Y, ax):
     x = X_squeezed[:, 0]
     y = X_squeezed[:, 1]
     colors = Y_squeezed
-    ax.scatter(x, y, s=50, c=colors, alpha=0.8)
+    ax.scatter(x, y, s=10, c=colors, alpha=0.8)
 
 def plot_dataset_regression(ds_X, ds_Y, ax):
     x = np.squeeze(ds_X)
     y = np.squeeze(ds_Y)
     ax.scatter(x, y, s=2)
+
+
+def load_mnist():
+    (X_train, y_train), (X_test, y_test) = mnist.load_data()
+    return np.expand_dims(X_train.reshape(len(X_train), -1), 1), np.expand_dims(y_train.reshape(len(y_train), -1), 1), np.expand_dims(X_test.reshape(len(X_test), -1), 1), np.expand_dims(y_test.reshape(len(y_test), -1), 1)

@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 
 from layers import dense_layer
 import utils
-
+from tqdm import tqdm
 
 
 class perceptron_net:
@@ -74,10 +74,15 @@ class perceptron_net:
     def fit(self, x_train, y_train, x_test, y_test, epochs, learning_rate):
         # sample dimension first
         samples = len(x_train)
-        figs = []
+        result = {
+            "Accuracy": [],
+            "Train loss": []
+        }
         
         # training loop
         for i in range(epochs):
+            if i == 14 or i == 24:
+                learning_rate /= 10
             err = 0
             outputs = []
             
@@ -86,8 +91,8 @@ class perceptron_net:
             perm = np.random.permutation(len(x_train))
             x_train = x_train[perm]
             y_train = y_train[perm]
-            
-            for j in range(samples):
+            print(f"Epoch: {i + 1}")
+            for j in tqdm(range(samples)):
                 # forward propagation
                 output = x_train[j]
                 for layer in self.layers:
@@ -116,19 +121,10 @@ class perceptron_net:
                 metric, outputs = self.test_mse(x_test, y_test)
                 print(f"Epoch {i+1}, train_mse: {err}, train_rmse: {np.sqrt(err)}, test_mse: {metric}, test_rmse {np.sqrt(metric)}")
 
-            fig, axs = plt.subplots(2, 2, figsize=(15, 10))
-            self.draw_losses(axs[0][0])
-            self.draw_network_weights(axs[0][1])
-            # calculate average error on all samples
-            figs.append(fig)
-            plot_fnc = utils.plot_dataset_classification if self.layers[0].weights.shape[0] > 1 else utils.plot_dataset_regression
-            plot_fnc(x_test, y_test, axs[1][0])
-            axs[1][0].set_title("Goal")
-            plot_fnc(x_test, outputs, axs[1][1])
-            axs[1][1].set_title("Actual output")
-
+            result["Accuracy"].append(metric)
+            result["Train loss"].append(err)
             
-        return figs
+        return result
 
     def draw_losses(self, ax):
         G = nx.Graph()
