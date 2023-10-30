@@ -2,5 +2,9 @@ tqdm
 pandas
 networkx
 matplotlib
-cProfile
 PySimpleGUI
+toml
+keras
+tensorflow
+scikit-learn
+numpy

@@ -11,7 +11,7 @@ import pickle
 
 if __name__ == "__main__":
     
-    with open('src/config/config.toml', 'r') as file:
+    with open('config/config.toml', 'r') as file:
         config = toml.load(file)
         
     # Prepare data
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     net.set_loss(loss, loss_prime)
 
     result = net.fit(X_train, y_train, X_test, y_test, epochs=config['epochs'], learning_rate=config['learning_rate'])
-    pd.DataFrame(result).to_csv(f"results/last.csv")
+    pd.DataFrame(result).to_csv(f"last.csv")
     with open("test.pkl", 'wb') as f:
         pickle.dump(net, f)
     # gui.run_gui(config['epochs'], figs)

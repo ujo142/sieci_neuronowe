@@ -1,9 +1,9 @@
-neurons_per_layer = [784, 32,10]
+neurons_per_layer = [784, 512, 512,10]
 seed = 7
 activation_fn = "sigmoid" # relu, leaky_relu
 last_activation_fn = "softmax" # sigmoid, softmax
 loss_function = "categorical_crossentropy" # mse, binary_crossentropy, categorical_crossentropy
-epochs = 1
+epochs = 30
 learning_rate = 0.001
 objective = "multi_classification" # multi_classification, binary_classification, regression
 data_dir = "src/data/classification"
