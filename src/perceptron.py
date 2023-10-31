@@ -49,7 +49,7 @@ class perceptron_net:
             output = x_test[j]
             for layer in self.layers:
                 output = layer.forward_propagation(output)
-            outputs.append(np.round(output[0]))
+            outputs.append(np.argmax(output[0]))
         if self.objective == 'binary_classification':
             self.num_correct = sum([1 if outputs[i] == y_test[i] else 0 for i in range(len(y_test))])
         elif self.objective == 'multi_classification':
@@ -78,13 +78,12 @@ class perceptron_net:
             "Accuracy": [],
             "Train loss": []
         }
-        
+        outputs = None
         # training loop
         for i in range(epochs):
             if i == 14 or i == 24:
                 learning_rate /= 10
             err = 0
-            outputs = []
             
             # shuffle samples in each epoch with certain seed
             np.random.seed(self.seed)
@@ -100,12 +99,7 @@ class perceptron_net:
 
                 # compute loss (for display purpose only)
                 err += self.loss(y_train[j], output[0])
-                
-                # append index of max output to outputs
-                if self.objective == 'binary_classification' or self.objective == 'multi_classification':
-                    outputs.append(np.argmax(output))  #0, 1, 2 moga byc
-                else:
-                    outputs.append(output[0])
+
                 
                 # backward propagation
                 error = self.loss_prime(y_train[j], output[0])     # err - int, error - 1,3. Czy to na pewno dobrze?
@@ -124,7 +118,7 @@ class perceptron_net:
             result["Accuracy"].append(metric)
             result["Train loss"].append(err)
             
-        return result
+        return result, outputs
 
     def draw_losses(self, ax):
         G = nx.Graph()
