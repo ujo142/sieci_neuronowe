@@ -49,7 +49,7 @@ class perceptron_net:
             output = x_test[j]
             for layer in self.layers:
                 output = layer.forward_propagation(output)
-            outputs.append(np.argmax(output[0]))
+            outputs.append(np.argmax(np.round(output[0])))
         if self.objective == 'binary_classification':
             self.num_correct = sum([1 if outputs[i] == y_test[i] else 0 for i in range(len(y_test))])
         elif self.objective == 'multi_classification':

@@ -81,7 +81,7 @@ if __name__ == "__main__":
 
     result, outputs = net.fit(X_train, y_train, X_test, y_test, epochs=config['epochs'], learning_rate=config[
         'learning_rate'])
-    pd.Series(outputs).to_csv("outputs.csv")
+    pd.Series([np.argmax(output) for output in outputs]).to_csv("outputs.csv")
     pd.DataFrame(result).to_csv(f"last.csv")
     with open("test.pkl", 'wb') as f:
         pickle.dump(net, f)
