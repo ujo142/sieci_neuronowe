@@ -6,12 +6,11 @@ from layers import dense_layer, activation_layer
 import cProfile
 from sklearn.preprocessing import OneHotEncoder
 import numpy as np
-import gui
 import pickle
 
 if __name__ == "__main__":
     
-    with open('src/config/config.toml', 'r') as file:
+    with open('config/config.toml', 'r') as file:
         config = toml.load(file)
         
     # Prepare data
