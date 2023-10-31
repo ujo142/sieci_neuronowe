@@ -1,4 +1,4 @@
-neurons_per_layer = [784, 512, 512,10]
+neurons_per_layer = [784, 512,10]
 seed = 7
 activation_fn = "sigmoid" # relu, leaky_relu
 last_activation_fn = "softmax" # sigmoid, softmax

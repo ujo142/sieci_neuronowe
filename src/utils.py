@@ -5,6 +5,9 @@ import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
 from keras.datasets import mnist
+import torchvision.datasets as datasets
+import torchvision.transforms as transforms
+import torch
 
 
 
@@ -113,11 +116,12 @@ def plot_dataset_regression(ds_X, ds_Y, ax):
     y = np.squeeze(ds_Y)
     ax.scatter(x, y, s=2)
 
+def _normalize(data):
+    return (data - np.mean(data)) / np.std(data)
 
 def load_mnist():
     (X_train, y_train), (X_test, y_test) = mnist.load_data()
-    normalizer_train = np.full_like(X_train, 255)
-    normalizer_test = np.full_like(X_test, 255)
-    X_train = np.divide(X_train, normalizer_train)
-    X_test = np.divide(X_test, normalizer_test)
+    X_train = _normalize(X_train)
+    X_test = _normalize(X_test)
     return np.expand_dims(X_train.reshape(len(X_train), -1), 1), np.expand_dims(y_train.reshape(len(y_train), -1), 1), np.expand_dims(X_test.reshape(len(X_test), -1), 1), np.expand_dims(y_test.reshape(len(y_test), -1), 1)
+
