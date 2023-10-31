@@ -11,7 +11,7 @@ import pickle
 
 if __name__ == "__main__":
     
-    with open('config/config.toml', 'r') as file:
+    with open('src/config/config.toml', 'r') as file:
         config = toml.load(file)
         
     # Prepare data

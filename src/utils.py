@@ -116,4 +116,8 @@ def plot_dataset_regression(ds_X, ds_Y, ax):
 
 def load_mnist():
     (X_train, y_train), (X_test, y_test) = mnist.load_data()
+    normalizer_train = np.full_like(X_train, 255)
+    normalizer_test = np.full_like(X_test, 255)
+    X_train = np.divide(X_train, normalizer_train)
+    X_test = np.divide(X_test, normalizer_test)
     return np.expand_dims(X_train.reshape(len(X_train), -1), 1), np.expand_dims(y_train.reshape(len(y_train), -1), 1), np.expand_dims(X_test.reshape(len(X_test), -1), 1), np.expand_dims(y_test.reshape(len(y_test), -1), 1)
